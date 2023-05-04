@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Solitaire Card Classic | Play online in your web browser for free!</title>
+	<meta charset="utf-8">
+	<meta name="description" content="Play klondike solitaire online with this website.  This is the best free solitaire game online. The site is built with HTML CSS and Javascript">
+	<meta name="author" content="Solitaire Card Classic">
+
+	<meta name="viewport" content="initial-scale=0.5, maximum-scale=0.5, minimum-scale=0.5, user-scalable=no">
+	
+	<link rel="stylesheet" href="menus.css">
+	<link rel="stylesheet" href="cards.css">
+	<link rel="stylesheet" href="game.css">
+
+	<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2857597813964310" crossorigin="anonymous"></script>
+	
+	<script>
+		//
+		// Initialize
+		//
+		var game = null;
+
+		window.onload = function () {
+			// TODO: redirectToAppStore();
+			UpdateBackgroundImageFromSettings();
+			setTimeout(function () {
+				ShowMainMenu(false);
+				ShowTitle();
+			}, 500);
+
+			game = new Game();
+
+		};
+
+		window.onresize = function() {
+			game.OnResizeWindow();
+		}
+
+	</script>
+
+	<script type="text/javascript" src="menus.js"></script>
+	<script type="text/javascript" src="settings.js"></script>
+	<script type="text/javascript" src="game.js"></script>
+	<script type="text/javascript" src="SolvedGameSeeds.js"></script>
+	<script type="text/javascript" src="GameSimulator.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css" />
+	<script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
+	<script>
+			window.addEventListener("load", function(){
+			window.cookieconsent.initialise({
+				"palette": {
+			"popup": {
+			"background": "#252e39"
+			},
+			"button": {
+			"background": "#14a7d0"
+			}
+		},
+			"theme": "edgeless",
+			"position": "bottom-left",
+			"content": {
+				"message": "This site uses cookies to analyze traffic and for ad personalization and ad measurement purposes.",
+				"dismiss": "OK",
+				"link": "Learn more",
+				"href": "https://policies.google.com/technologies/cookies"
+			}
+			})});
+	</script>
+
+</head>
+
+<body>
+
+	<div id="main_canvas">
+		<div id="game_title">
+			<center>
+				<div class="t1">SOLITAIRE</div>
+				<div class="t2">CARD CLASSIC</div>
+			</center>
+		</div>
+
+		<div id="below_cards_messages_region">
+			<div id="game_number_container">
+				<div id="game_number_label">Game</div>
+				<div id="game_number">123</div>
+				<div id="game_number_difficulty"></div>
+			</div>
+
+			<div class="foundation_base" id="foundation_base_hearts"></div>
+			<div class="foundation_base" id="foundation_base_clubs"></div>
+			<div class="foundation_base" id="foundation_base_diamonds"></div>
+			<div class="foundation_base" id="foundation_base_spades"></div>
+
+			<div id="tableau_base_0" class="stack_base"></div>
+			<div id="tableau_base_1" class="stack_base"></div>
+			<div id="tableau_base_2" class="stack_base"></div>
+			<div id="tableau_base_3" class="stack_base"></div>
+			<div id="tableau_base_4" class="stack_base"></div>
+			<div id="tableau_base_5" class="stack_base"></div>
+			<div id="tableau_base_6" class="stack_base"></div>
+
+			<div id="deck_base" class="stack_base">
+				<div id="deck_reset_image"></div>
+			</div>
+
+			<div id="navigation_bar">
+				<div id="navigation_bar_middle_container">
+					<div id="navigation_bar_moves_container">
+						<div id="navigation_bar_moves">0</div>
+						<div class="navigation_bar_item_label">Moves</div>
+					</div>
+					<button id="hint_button" onclick="game.OnHintButtonClick()">
+						<img src="images/HintButton.png" style="width: 40px; height: 40px" ondragstart="return false;" />
+						<div class="navigation_bar_item_label">Hint</div>
+					</button>	
+					<div id="navigation_bar_clock_container">
+						<div id="navigation_bar_clock">0:00</div>
+						<div class="navigation_bar_item_label">Clock</div>
+					</div>	
+				</div>
+				
+				<div id="undo_redo_container">
+					<button id="undo_button" onclick="game.OnUndoButtonClick()">
+						<img src="images/UndoButton.png" style="width: 40px; height: 40px" ondragstart="return false;" />
+						<div class="navigation_bar_item_label">Undo</div>
+					</button>
+					<button id="redo_button" onclick="game.OnRedoButtonClick()">
+							<img src="images/ForwardButton.png" style="width: 40px; height: 40px" ondragstart="return false;" />
+							<div class="navigation_bar_item_label">Redo</div>
+					</button>
+				</div>
+
+				<button id="navigation_bar_menu_button" onclick="MenuButtonPressed()">
+					<img src="images/MenuButton.png" style="width: 40px; height: 40px" ondragstart="return false;" />
+					<div class="navigation_bar_item_label">Menu</div>
+				</button>
+				
+			</div>
+
+		</div>
+
+		<div id="cards_region">
+		</div>
+
+		<div id="StartingGameNumberView">
+			<div id="StartingGameNumberViewText">Starting game</div>
+			<div id="StartingGameNumberViewText2">123</div>
+			<div id="StartingGameNumberViewText3">(Easy)</div>
+		</div>
+	
+		<div id="IsThinkingView">
+			<svg class="circular">
+				<circle class="thinking_path" cx="25" cy="25" r="20" fill="none" stroke-width="5" stroke-miterlimit="10"></circle>
+			</svg>
+			<div id="ThinkingText">Thinking...</div>
+		</div>
+
+		<div id="DeadEndWarningView">
+			<button id="DeadEndWarningViewCloseButton" onclick="HideDeadEndWarningView()">X</button>
+			<button id="DeadEndWarningViewRestartButton" onclick="RestartGame()"></button>
+			<div id="DeadEndWarningViewTitle">Dead End</div>
+			<div id="DeadEndWarningViewLine1">No productive moves left.</div>
+			<div id="DeadEndWarningViewLine2">Restart or undo a few moves.</div>
+		</div>
+
+		<div id="NoOptimalMoveView">
+			<div id="NoOptimalMoveViewText">No optimal move found.<br>Go with your gut!</div>
+		</div>
+
+		<div id="GameOverView">
+			<button id="game_over_close_button" onclick="onGameOverCloseClick()">X</button>
+			<div id="GameOverResultText">You won!<br>Game 123</div>
+			<div id="GameOverLeastTime" class="game_over_record_region">
+				<div class="GreenStar"></div>
+				<div class="game_over_record_text">Fastest time yet!</div>
+				<div class="GreenStar"></div>
+			</div>
+			<div id="GameOverLeastMoves" class="game_over_record_region">
+				<div class="GreenStar"></div>
+				<div class="game_over_record_text">Least moves yet!</div>
+				<div class="GreenStar"></div>
+			</div>
+			<div id="GameOverLeastHints" class="game_over_record_region">
+				<div class="GreenStar"></div>
+				<div class="game_over_record_text">Least hints yet!</div>
+				<div class="GreenStar"></div>
+			</div>
+			<div id="GameOverLeastUndos" class="game_over_record_region">
+				<div class="GreenStar"></div>
+				<div class="game_over_record_text">Least undos yet!</div>
+				<div class="GreenStar"></div>
+			</div>
+			
+			<table id="GameOverResultsTable">
+				<tr><td class="GameOverResultsTableItem">Time:</td><td id="game_over_result_time" class="GameOverResultsTableValue">0:00</td></tr>
+				<tr><td class="GameOverResultsTableItem">Moves:</td><td id="game_over_result_moves" class="GameOverResultsTableValue">0</td></tr>
+				<tr><td class="GameOverResultsTableItem">Hints:</td><td id="game_over_result_hints" class="GameOverResultsTableValue">0</td></tr>
+				<tr><td class="GameOverResultsTableItem">Undos:</td><td id="game_over_result_undos" class="GameOverResultsTableValue">0</td></tr>
+			</table>
+
+			<div id="game_over_start_prompt">Play them in order:</div>
+			<button id="game_over_start_game_button" class="menu_button" onclick="OnGameOverStartGameButtonClick()">Game 123</button>
+		</div>
+
+		<div id="menu_main" class="menu_view">
+			<button id="menu_main_close_button" class="close_button" onclick="menu_main_close_click()">X</button>
+			<button id="start_game_button" class="menu_button" onclick="ShowStartAGameMenu()">Start A Game</button>
+			<button id="solution_button" class="menu_button" onclick="ShowSolutionMenu()">Solution</button>
+			<button id="settings_button" class="menu_button" onclick="ShowSettingsMenu()">Settings</button>
+			<button id="statistics_button" class="menu_button" onclick="ShowStatisticsMenu()">Statistics</button>
+		</div>
+
+		<div id="menu_start_a_game" class="menu_view">
+			<div id="menu_start_a_game_title" class="menu_card_title">Start A Game:</div>
+			<button id="menu_start_a_game_close_button" class="close_button" onclick="menu_card_close_click()">X</button>
+			<div id="menu_start_a_game_message">All games are winnable<br>Play them all in order!</div>
+			<button id="menu_start_a_game_next_game_button" class="menu_button" onclick="menu_start_game_click()">Game 121</button>
+			<div id="menu_start_a_game_choose_difficulty_message">Or choose a difficulty level<br>(Easy, Standard, Difficult):</div>
+			<button id="menu_start_a_game_choose_difficulty_button" class="menu_button" onclick="ShowDifficultiesSelectionMenu()">Choose difficulty...</button>
+		</div>
+
+		<div id="menu_difficulty_selection" class="menu_view">
+			<div id="menu_difficulty_selection_title" class="menu_card_title">Choose a difficulty level:</div>
+			<button id="menu_difficulty_selection_close_button" class="close_button" onclick="menu_card_close_click()">X</button>
+			<button id="menu_difficulty_selection_info_button" class="info_button" onclick="ShowInfoMenu()">i</button>
+			<button class="menu_button" onclick="menu_start_game_difficulty_click('Easy')">Easy</button>
+			<button class="menu_button" onclick="menu_start_game_difficulty_click('Standard')">Standard</button>
+			<button class="menu_button" onclick="menu_start_game_difficulty_click('Difficult')">Difficult</button>
+			<button class="menu_button" onclick="ShowPickGameNumberMenu()">Pick game number...</button>
+		</div>
+
+		<div id="menu_info" class="menu_view">
+			<div id="menu_info_title" class="menu_card_title">Information</div>
+			<button id="menu_info_close_button" class="close_button" onclick="menu_card_close_click()">X</button>
+			<div id="menu_info_body">
+				<div class="menu_info_body_title">Game Numbers</div>
+				<div class="menu_info_body_text">Solitaire Card Classic contains 32,000 unique game deals.  Try to play them all in order or opt to play specific games of interest!</div>
+				<div class="menu_info_body_title">Game Difficulties</div>
+				<div class="menu_info_body_text">Solitaire Card Classic also lets you choose to play an easy, standard, or difficult game.  Most solitaire game solutions include many draws of cards from the deck.  If a solitaire game solution uses relatively few deck moves and playing the most obvious moves does not result in a dead end, then the game can be considered easy.  And if a solution uses many deck moves and a large number of available moves result in dead ends, then we consider the game to be difficult.  Using this criterion, Solitaire Card Classic contains a group of easy and difficult games for you to enjoy.  All games in Solitaire Card Classic are winnable!</div>
+			</div>
+		</div>
+
+		<div id="menu_pick_game_number" class="menu_view">
+			<div id="menu_pick_game_number_title" class="menu_card_title">Pick A Game</div>
+			<button id="menu_pick_game_number_close_button" class="close_button" onclick="menu_card_close_click()">X</button>
+			<div id="menu_pick_game_number_message">Enter a game number and then tap this button to start.</div>
+			<div id="menu_pick_game_button_container">
+				<button id="menu_pick_game_number_button" class="menu_button" onclick="GameNumberSelected()">Start Game </button>
+				<input id="menu_pick_game_number_field" type="number" >
+			</div>
+			<div id="menu_pick_game_number_error_message"></div>
+		</div>
+
+		<div id="menu_settings" class="menu_view">
+			<div id="menu_settings_title" class="menu_card_title">Settings</div>
+			<button id="menu_settings_close_button" class="close_button" onclick="menu_card_close_click()">X</button>
+			<div id="menu_settings_body">
+				<div style="text-align:left; font-size:14pt; padding-top:5pt">Board Background:</div>
+				<div class="image-selector">
+					<input id="wood_light" type="radio" name="settings_boardbackground_selector" value="wood_light" onclick="BoardSelectorClick(this)"
+					/>
+					<label class="board-selector-item background_wood_light" for="wood_light"></label>
+					<input id="wood" type="radio" name="settings_boardbackground_selector" value="wood" onclick="BoardSelectorClick(this)" />
+					<label class="board-selector-item background_wood" for="wood"></label>
+					<input id="wood_dark" type="radio" name="settings_boardbackground_selector" value="wood_dark" onclick="BoardSelectorClick(this)"
+					/>
+					<label class="board-selector-item background_wood_dark" for="wood_dark"></label>
+					<input id="wood_gray" type="radio" name="settings_boardbackground_selector" value="wood_gray" onclick="BoardSelectorClick(this)"
+					/>
+					<label class="board-selector-item background_wood_gray" for="wood_gray"></label>
+					<input id="green" type="radio" name="settings_boardbackground_selector" value="green" onclick="BoardSelectorClick(this)"
+					/>
+					<label class="board-selector-item background_green" for="green"></label>
+					<input id="red" type="radio" name="settings_boardbackground_selector" value="red" onclick="BoardSelectorClick(this)" />
+					<label class="board-selector-item background_red" for="red"></label>
+					<input id="blue" type="radio" name="settings_boardbackground_selector" value="blue" onclick="BoardSelectorClick(this)" />
+					<label class="board-selector-item background_blue" for="blue"></label>
+				</div>
+
+				<div style="text-align:left; font-size:14pt; padding-top:5pt">Card Color:</div>
+				<div class="image-selector">
+					<input id="card_blue" type="radio" name="settings_card_color_selector" value="blue" onclick="CardSelectorClick(this)" />
+					<label class="card-selector-item card_back_blue" for="card_blue"></label>
+					<input id="card_red" type="radio" name="settings_card_color_selector" value="red" onclick="CardSelectorClick(this)" />
+					<label class="card-selector-item card_back_red" for="card_red"></label>
+					<input id="card_green" type="radio" name="settings_card_color_selector" value="green" onclick="CardSelectorClick(this)" />
+					<label class="card-selector-item card_back_green" for="card_green"></label>
+				</div>
+				<table style="width:100%; text-align:left; font-size:14pt;">
+					<tr>
+						<td class="menu_settings_label">Draw one card at a time:</td>
+						<td style="text-align:right;padding-bottom:7pt">
+							<label class="switch">
+								<input id="setting_draw_one_card_checkbox" type="checkbox" onclick="SettingDrawOneCardClicked(this)">
+								<span class="slider round"></span>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu_settings_label">Thoughtful Solitaire (all cards face up):</td>
+						<td style="text-align:right;padding-bottom:7pt">
+							<label class="switch">
+								<input id="setting_thoughtful_checkbox" type="checkbox" onclick="SettingThoughtfulClicked(this)">
+								<span class="slider round"></span>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu_settings_label">Position draw pile at top:</td>
+						<td style="text-align:right;padding-bottom:7pt">
+							<label class="switch">
+								<input id="setting_draw_pile_on_top_checkbox" type="checkbox" onclick="SettingDrawPileOnTopClicked(this)">
+								<span class="slider round"></span>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu_settings_label">Autoplay to foundations:</td>
+						<td style="text-align:right;padding-bottom:7pt">
+							<label class="switch">
+								<input id="setting_autoplay_checkbox" type="checkbox" onclick="SettingAutoplayClicked(this)">
+								<span class="slider round"></span>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu_settings_label">Allow undo moves:</td>
+						<td style="text-align:right;padding-bottom:7pt">
+							<label class="switch">
+								<input id="setting_undo_checkbox" type="checkbox" onclick="SettingUndoClicked(this)">
+								<span class="slider round"></span>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu_settings_label">Show hint button:</td>
+						<td style="text-align:right;padding-bottom:7pt">
+							<label class="switch">
+								<input id="setting_hints_checkbox" type="checkbox" onclick="SettingHintsClicked(this)">
+								<span class="slider round"></span>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu_settings_label">Show game clock:</td>
+						<td style="text-align:right;padding-bottom:7pt">
+							<label class="switch">
+								<input id="setting_game_clock_checkbox" type="checkbox" onclick="SettingGameClockClicked(this)">
+								<span class="slider round"></span>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu_settings_label">Show game number:</td>
+						<td style="text-align:right;padding-bottom:7pt">
+							<label class="switch">
+								<input id="setting_game_number_checkbox" type="checkbox" onclick="SettingGameNumberClicked(this)">
+								<span class="slider round"></span>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu_settings_label">Warn on dead ends:</td>
+						<td style="text-align:right;padding-bottom:7pt">
+							<label class="switch">
+								<input id="setting_warn_dead_ends_checkbox" type="checkbox" onclick="SettingWarnDeadEndsClicked(this)">
+								<span class="slider round"></span>
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td class="menu_settings_label">Right handed:</td>
+						<td style="text-align:right;padding-bottom:7pt">
+							<label class="switch">
+								<input id="setting_right_handed_checkbox" type="checkbox" onclick="SettingRightHandedClicked(this)">
+								<span class="slider round"></span>
+							</label>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+
+		<div id="menu_statistics" class="menu_view">
+			<div id="menu_statistics_title" class="menu_card_title">Statistics</div>
+			<button id="menu_statistics_close_button" class="close_button" onclick="menu_card_close_click()">X</button>
+
+
+			<div id="menu_statistics_body">
+				<table id="menu_stats_table">
+					<tr><td class="menu_stats_table_item">Total wins:</td><td id="menu_stats_total_wins" class="menu_stats_table_value">1 of 150</td></tr>
+					<tr><td class="menu_stats_table_item">Easy wins:</td><td id="menu_stats_easy_wins" class="menu_stats_table_value">1 of 150</td></tr>
+					<tr><td class="menu_stats_table_item">Difficult wins:</td><td id="menu_stats_difficult_wins" class="menu_stats_table_value">3 of 143</td></tr>
+					<tr><td style="height:15px"></td></tr>				
+					<tr><td class="menu_stats_table_item">Fastest Time:</td><td id="menu_stats_least_time" class="menu_stats_table_value">0:00</td></tr>
+					<tr><td class="menu_stats_table_item">Least Moves:</td><td id="menu_stats_least_moves" class="menu_stats_table_value">0</td></tr>
+					<tr><td class="menu_stats_table_item">Least Hints:</td><td id="menu_stats_least_hints" class="menu_stats_table_value">0</td></tr>
+					<tr><td class="menu_stats_table_item">Least Undos:</td><td id="menu_stats_least_undos" class="menu_stats_table_value">0</td></tr>
+				</table>
+			</div>
+
+			<button id="menu_statistics_reset_button" onclick="ResetStatisticsButtonClick()">Reset Statistics</button>
+			
+		</div>
+
+		<div id="menu_solution" class="menu_view">
+			<div id="menu_solution_title" class="menu_card_title">Solution</div>
+			<button id="menu_solution_close_button" class="close_button" onclick="menu_card_solution_view_close_click()">X</button>
+			<div id="menu_solution_message">You can win in 52 moves!<br>(+42 draws from the deck)</div>
+			<div id="menu_solution_canvas"></div>
+			<div id="menu_solution_cards_region"></div>
+			<div id="menu_solution_thinking">
+				<svg class="menu_solution_thinking_circular">
+					<circle class="thinking_path" cx="25" cy="25" r="20" fill="none" stroke-width="5" stroke-miterlimit="10"></circle>
+				</svg>
+			</div>
+			<div id="menu_solution_buttons_container">
+				<button id="menu_solution_back_button" onclick="OnSolutionBackButtonClick()">
+					<img src="images/UndoButton.png" style="width: 40px; height: 40px" ondragstart="return false;" />
+					<div class="menu_solution_button_label">Back</div>
+				</button>
+				<div id="menu_solution_moves_container">
+					<div id="menu_solution_moves">0</div>
+					<div class="menu_solution_button_label">Moves</div>
+				</div>
+				<button id="menu_solution_forward_button" onclick="OnSolutionForwardButtonClick()">
+						<img src="images/ForwardButton.png" style="width: 40px; height: 40px" ondragstart="return false;" />
+						<div class="menu_solution_button_label">Forward</div>
+				</button>
+			</div>
+		</div>
+		
+	</div>
+
+	<div id="side_bar_region">
+
+		<div id="adView" align="center">
+			<ins class="adsbygoogle"
+				style="display:inline-block;width:728px;height:90px"
+				data-ad-client="ca-pub-2857597813964310"
+				data-ad-slot="5983564588"></ins>
+			<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+			</script>
+		</div>
+			
+		<button id="get_more_games_button" onclick="PlayMoreGamesButtonPressed()">
+				Play More<br>Card Classics
+			</button>
+
+		<div id="play_more_games_menu">
+			<div id="play_more_games_title">Play More<br>Card Classics</div>
+			<button id="play_more_games_close_button" class="close_button" onclick="play_more_games_close_click()">X</button>
+			<a class="more_games_icon_button" href="http://www.cribbageclassic.com" style="margin-top: 50pt">
+				<span style="display: block; width:100%; height:100%">
+					<div id="more_games_icon_cribbage"></div>
+					<div class="more_games_icon_title">
+						<center>
+							<div class="more_games_icon_title1">CRIBBAGE</div>
+							<div class="more_games_icon_title2">CARD CLASSIC</div>
+						</center>
+					</div>
+				</span>
+			</a>
+			<a class="more_games_icon_button" href="http://www.heartscardclassic.com">
+				<span style="display: block; width:100%; height:100%">
+					<div id="more_games_icon_hearts"></div>
+					<div class="more_games_icon_title">
+						<center>
+							<div class="more_games_icon_title1">HEARTS</div>
+							<div class="more_games_icon_title2">CARD CLASSIC</div>
+						</center>
+					</div>
+				</span>
+			</a>
+			<a class="more_games_icon_button" href="http://www.spadescardclassic.com">
+				<span style="display: block; width:100%; height:100%">
+					<div id="more_games_icon_spades"></div>
+					<div class="more_games_icon_title">
+						<center>
+							<div class="more_games_icon_title1">SPADES</div>
+							<div class="more_games_icon_title2">CARD CLASSIC</div>
+						</center>
+					</div>
+				</span>
+			</a>
+			<a class="more_games_icon_button" href="http://www.pinochleclassic.com">
+				<span style="display: block; width:100%; height:100%">
+					<div id="more_games_icon_pinochle"></div>
+					<div class="more_games_icon_title">
+						<center>
+							<div class="more_games_icon_title1">PINOCHLE</div>
+							<div class="more_games_icon_title2">CARD CLASSIC</div>
+						</center>
+					</div>
+				</span>
+			</a>
+			
+		</div>
+	</div>
+</body>
+
+</html>
