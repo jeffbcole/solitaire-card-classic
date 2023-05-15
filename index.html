@@ -22,11 +22,18 @@
 		var game = null;
 
 		window.onload = function () {
-			// TODO: redirectToAppStore();
 			UpdateBackgroundImageFromSettings();
 			setTimeout(function () {
-				ShowMainMenu(false);
-				ShowTitle();
+				if (GetStatistic('stat_total_games_won')==0) {
+					HideTitle();
+					var startGameNumber = GetFirstEasyGameNumber();
+					game.StartAGame(startGameNumber, 'Easy');
+					ShowMenuButton();
+					isMainMenuVisible = false;
+				} else {
+					ShowMainMenu(false);
+					ShowTitle();
+				}
 			}, 500);
 
 			game = new Game();
