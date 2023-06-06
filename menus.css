@@ -44,7 +44,7 @@ body {
 	height: 600px;
 	transform: translate(0%, -50%);
 	z-index: 500;
-	visibility: hidden;
+	visibility: visible;
 }
 
 .t1, .t2 {
