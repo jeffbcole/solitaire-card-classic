@@ -976,7 +976,7 @@ var Game = function () {
         }
     }
 
-    this.StartAGame = function (gameNumber, difficulty) {
+    this.StartAGame = function (gameNumber, difficulty, isRestart=false) {
 
         this.InitializeGame(gameNumber, difficulty);        
 
@@ -1001,7 +1001,7 @@ var Game = function () {
             gameNumberContainer.style.transition = "all 0.5s linear 2s";
             gameNumberContainer.style.opacity = 1;    
         }, 50);
-        game.OnShowStartingGameNumber(gameNumber, difficulty);
+        game.OnShowStartingGameNumber(gameNumber, difficulty, isRestart);
         
         PositionAllCardViews(true, 0);
         SearchForGameHintsAndDeadEnds();
@@ -1012,19 +1012,26 @@ var Game = function () {
 
         document.getElementById('navigation_bar_moves').innerText = "0";
 
-        SetStatistic('stat_games_started', GetStatistic('stat_games_started')+1);
+        if (!isRestart) {
+            SetStatistic('stat_games_started', GetStatistic('stat_games_started')+1);
 
-        if (difficulty == 'Easy') {
-            IncrementEasyGameIndex();
-        } else if (difficulty == 'Difficult') {
-            IncrementDifficultGameIndex();
+            if (difficulty == 'Easy') {
+                IncrementEasyGameIndex();
+            } else if (difficulty == 'Difficult') {
+                IncrementDifficultGameIndex();
+            }
         }
     }
 
-    this.OnShowStartingGameNumber = function(gameNumber, difficulty) {
+    this.OnShowStartingGameNumber = function(gameNumber, difficulty, isRestart=false) {
 
         document.getElementById('StartingGameNumberViewText2').innerText = gameNumber;
         var title = document.getElementById('StartingGameNumberViewText');
+        if (isRestart) {
+            title.innerText = "Restarting game";
+        } else {
+            title.innerText = "Starting game"
+        }
         var difficultyLabel = document.getElementById('StartingGameNumberViewText3')
         if (difficulty.length>0) {
             difficultyLabel.innerText = difficulty;
@@ -2819,7 +2826,7 @@ var ShowDeadEndWarningView = function() {
     {
         // Show a restart game button if undo moves is not allowed
         if (GetSetting('setting_undo')) {
-            document.getElementById('DeadEndWarningViewRestartButton').style.visibility = 'hidden';
+            document.getElementById('DeadEndWarningViewRestartButton').style.visibility = 'visible';
             document.getElementById('DeadEndWarningViewLine2').innerText = 'Restart or undo a few moves';
         } else {
             document.getElementById('DeadEndWarningViewRestartButton').style.visibility = 'visible';

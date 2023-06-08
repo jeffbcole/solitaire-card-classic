@@ -197,7 +197,7 @@ function menu_start_game_click() {
 
 function RestartGame() {
 	HideDeadEndWarningView();
-	game.StartAGame(game.gameNumber, game.gameDifficulty);
+	game.StartAGame(game.gameNumber, game.gameDifficulty, true);
 }
 
 function menu_start_game_difficulty_click(difficulty) {
